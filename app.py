@@ -17,7 +17,7 @@ def page():  # put application's code here
     responseData = {
         "pageSize":pageSize,
         "pageNum":pageNum,
-        "pageTotal": len(db.selectAll()),
+        "pageTotal": db.count(),
         "data": db.selectPage((pageNum-1)*pageSize, pageSize)
     }
     response = {
@@ -37,8 +37,6 @@ def add():
         'website': args.get('website'),
         'bind_email': args.get('bind_email'),
         'bind_phone': args.get('bind_phone'),
-        'create_time': args.get('create_time'),
-        'update_time': args.get('update_time'),
         'comment': args.get('comment')
     }
     db.insert(obj)
@@ -60,8 +58,6 @@ def update():
         'website': args.get('website'),
         'bind_email': args.get('bind_email'),
         'bind_phone': args.get('bind_phone'),
-        'create_time': args.get('create_time'),
-        'update_time': args.get('update_time'),
         'comment': args.get('comment')
     }
     db.update(obj)

@@ -52,6 +52,12 @@
           <el-form-item label="简介">
             <el-input v-model="form.info"></el-input>
           </el-form-item>
+          <el-form-item label="创建时间" disabled="true">
+            <el-input v-model="form.create_time" disabled></el-input>
+          </el-form-item>
+          <el-form-item label="更新时间">
+            <el-input v-model="form.update_time" disabled></el-input>
+          </el-form-item>
           <el-form-item label="昵称">
             <el-input v-model="form.nickname"></el-input>
           </el-form-item>
@@ -88,8 +94,8 @@
           </el-form-item>
 
           <el-form-item>
-            <el-button type="primary" @click="onSubmit">立即创建</el-button>
-            <el-button>取消</el-button>
+            <el-button type="primary" @click="onSubmit">Save</el-button>
+            <el-button>Cancel</el-button>
           </el-form-item>
         </el-form>
       </el-drawer>
@@ -191,6 +197,8 @@ export default {
 
       form: {
         info: '',
+        create_time:'',
+        update_time:'',
         nickname: '',
         account: '',
         password: '',
