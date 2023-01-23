@@ -12,6 +12,14 @@ axios.defaults.baseURL = 'http://127.0.0.1:5000/api';
 Vue.prototype.$axios = axios
 Vue.config.productionTip = false
 
+// 重构 console.log 函数
+const log = console.log
+console.log = function(){
+  if (process.env.NODE_ENV != "production"){
+    log(...arguments)
+  }
+}
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

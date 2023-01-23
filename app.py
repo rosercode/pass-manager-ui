@@ -14,11 +14,12 @@ def page():  # put application's code here
     args = request.args
     pageNum = int(args.get('pageNum')) if args.get('pageNum') != None else 1
     pageSize = int(args.get('pageSize')) if args.get('pageSize') != None else 10
+    q = args.get('q') if args.get('q') != None else ''
     responseData = {
         "pageSize":pageSize,
         "pageNum":pageNum,
-        "pageTotal": db.count(),
-        "data": db.selectPage((pageNum-1)*pageSize, pageSize)
+        "pageTotal": db.count(q),
+        "data": db.selectPage((pageNum-1)*pageSize, pageSize, q)
     }
     response = {
         "code":200,

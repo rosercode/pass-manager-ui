@@ -75,16 +75,16 @@ def update(account):
         # 发生错误时回滚
         conn.rollback()
 
-def selectPage(limit, offset):
+def selectPage(limit, offset, q=''):
     sql = """SELECT {}
-        FROM {}
-        limit {}, {}""".format(columns2, tablename,limit, offset)
+        FROM {} where info like '%{}%' or comment like '%{}%'
+        limit {}, {}""".format(columns2, tablename, q, q, limit, offset)
     return executeSelectSql(sql)
 
-def count():
+def count(q=''):
     sql = """select count(1)
-    FROM {}
-    """.format(tablename)
+    FROM {} where info like '%{}%' or comment like '%{}%'
+    """.format(tablename, q, q)
     print(sql)
     conn = connect();
     conn.ping(reconnect=True)
@@ -109,6 +109,7 @@ def selectById(id):
 
 # 执行查询的 sql
 def executeSelectSql(sql):
+    print(sql)
     conn = connect();
     conn.ping(reconnect=True)
     # 使用cursor()方法获取操作游标

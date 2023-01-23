@@ -5,14 +5,15 @@
     </div>
     <div class="module-content">
       <div class="tool-bar">
-        <el-input  placeholder="Title" style="width: 200px;" class="filter-item" @keyup.enter.native="handleFilter" />
-        <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleSearch()">
+        <el-input  placeholder="info or comment" v-model="q" style="width: 200px;" class="filter-item" @keyup.enter.native="handleSearch" />
+        <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleSearch">
           Search
         </el-button>
         <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleAdd">
           Add
         </el-button>
       </div>
+      <br/>
       <el-table :data="tableData" border style="width: 100%" >
         <template v-for="column in bindTableColumns" >
           <el-table-column v-if="column.show"
@@ -93,7 +94,7 @@
             <el-input v-model="form.comment"></el-input>
           </el-form-item>
 
-          <el-form-item>
+          <el-form-item style="text-align: right">
             <el-button type="primary" @click="onSubmit">Save</el-button>
             <el-button>Cancel</el-button>
           </el-form-item>
@@ -118,27 +119,13 @@ export default {
     }
   },
   created:function(){
-    const _this = this
-    this.$axios.get('/page', {
-      params: {
-        pageNum:1,
-        pageSize: 5
-      }
-    }).then(function (response) {
-      const res = response.data
-      _this.tableData = res.data.data
-      _this.pageSize = res.data.pageSize
-      _this.currentPage = res.data.pageNum
-      _this.pageTotal = res.data.pageTotal
-      console.log(res)
-    }).catch(function (error) {
-      console.log(error);
-    });
+      this.pageSelect()
   },
 
   data() {
     return {
       confirm_new_pwd:"1",
+      // 表格列
       tableColumns:[
         {
           "prop":"id",
@@ -188,9 +175,9 @@ export default {
       ],
       tableData: [],
       currentPage:1,
-      pageSize:10,
+      pageSize: 5,
       pageTotal:20,
-
+      q:'',
       drawerTitle:"",
       drawer: false,
       direction: 'rtl',
@@ -218,7 +205,8 @@ export default {
       this.$axios.get('/page', {
         params: {
           pageNum:this.currentPage,
-          pageSize:this.pageSize
+          pageSize:this.pageSize,
+          q:this.q
         }
       }).then(function (response) {
         const res = response.data
@@ -278,7 +266,7 @@ export default {
     },
     // 搜索表格内容 请求后端
     handleSearch(){
-
+      this.pageSelect()
     },
     handleAdd(){
       this.form = {}
@@ -312,7 +300,6 @@ export default {
           message: h('i', { style: 'color: teal'}, '取消操作')
         });
       });
-
     },
     // 保存，或者 更新数据
     onSubmit() {
