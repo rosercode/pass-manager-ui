@@ -1,16 +1,17 @@
 import pymysql
+from configparser import ConfigParser
 
+config = ConfigParser()
+config.read('config.ini', encoding='utf-8')
 # the configuration message for mysql server
-host = '10.0.8.11'
-port = 3308
-user = 'root'
-password = '123456'
-
-# datanase name
-database = 'account_db'
+host = config['mysql']['host']
+port = config['mysql']['port']
+user = config['mysql']['user']
+password = config['mysql']['password']
+database = config['mysql']['database']
 
 # table name
-tablename = 'account'
+tablename = 't_account'
 
 # columns one list in db
 columns1 = "info, nickname, account, password, website, bind_email, bind_phone, `create_time`, `update_time`, comment"
@@ -36,7 +37,7 @@ def insert(account):
     """.format(tablename, columns3,
                account['info'], account['nickname'], account['account'], account['password'],
                account['website'], account['bind_email'], account['bind_phone'], account['comment'])
-    sql = sql.replace("'None'","null")
+    sql = sql.replace("'None'", "null")
     print(sql)
     try:
         # 执行sql语句
@@ -64,7 +65,7 @@ def update(account):
                account['info'], account['nickname'], account['account'], account['password'],
                account['website'], account['bind_email'], account['bind_phone'], account['update_time'], account['comment'],
                account['id'])
-    sql = sql.replace("'None'","null")
+    sql = sql.replace("'None'", "null")
     print(sql)
     try:
         # 执行SQL语句
