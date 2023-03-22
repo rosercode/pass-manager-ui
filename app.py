@@ -4,7 +4,7 @@ from werkzeug.serving import run_simple
 from werkzeug.middleware.dispatcher import DispatcherMiddleware
 import json
 
-import db
+import mysql_db as db
 
 bp = Blueprint('burritos', __name__,
                         template_folder='templates')
