@@ -6,22 +6,21 @@
     <div class="module-content">
       <div class="tool-bar">
         <el-input  placeholder="info or comment" v-model="q" style="width: 200px;" class="filter-item" @keyup.enter.native="handleSearch" />
-        <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleSearch">
-          Search
-        </el-button>
-        <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleAdd">
-          Add
-        </el-button>
+        <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleSearch">Search</el-button>
+        <el-button class="filter-item" style="margin-left: 10px;" type="primary" icon="el-icon-edit" @click="handleAdd">Add</el-button>
       </div>
       <br/>
       <el-table :data="tableData" border style="width: 100%" >
-        <template v-for="column in bindTableColumns" >
-          <el-table-column v-if="column.show"
-                           :key="column.prop"
-                           :prop="column.prop"
-                           :label="column.label"
-          ></el-table-column>
-        </template>
+        <el-table-column prop="info" label="简介"></el-table-column>
+        <el-table-column prop="account" label="账号"></el-table-column>
+        <el-table-column prop="website" label="网址">
+          <template slot-scope="scope">
+            <span class="span-text" v-if="scope.row.website!== undefined" v-for="(site, index) in scope.row.website.split(',')">
+              <a link :href="site" target="_blank">地址{{index+1}} </a>
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column prop="comment" label="注释"></el-table-column>
         <el-table-column
           fixed="right"
           label="操作"
@@ -43,12 +42,8 @@
                        :total="pageTotal">
         </el-pagination>
       </div>
-      <!--  -->
-      <el-drawer
-        :title="drawerTitle"
-        :visible.sync="drawer"
-        :direction="direction"
-        :before-close="handleClose">
+      <!-- 抽屉 添加内容 -->
+      <el-drawer :title="drawerTitle" :visible.sync="drawer1" :direction="direction2" :before-close="handleClose">
         <el-form ref="form" :model="form" label-width="80px">
           <el-form-item label="简介">
             <el-input v-model="form.info"></el-input>
@@ -70,117 +65,104 @@
               v-model="form.password"
               :type="type"
               class="pwd-input"
-              placeholder="请输入密码"
-            >
-              <i
-                slot="suffix"
-                class="icon-style"
-                :class="elIcon"
-                autocomplete="auto"
-                @click="flag = !flag"
-              />
+              placeholder="请输入密码">
+            <i slot="suffix"
+              class="icon-style"
+              :class="elIcon"
+              autocomplete="auto"
+              @click="flag = !flag"/>
             </el-input>
           </el-form-item>
           <el-form-item label="网址">
             <el-input v-model="form.website"></el-input>
           </el-form-item>
           <el-form-item label="绑定的邮箱">
-            <el-input v-model="form.bind_email"></el-input>
+            <el-select v-model="form.bind_email" placeholder="绑定的邮箱">
+              <el-option v-for="item in emailList" :label="item.account" :value="item.account"></el-option>
+            </el-select>
+            <el-button @click="emailAdd">添加新的邮箱</el-button>
           </el-form-item>
           <el-form-item label="绑定手机号码">
-            <el-input v-model="form.bind_phone"></el-input>
+            <el-select v-model="form.bind_phone" placeholder="绑定的邮箱">
+              <el-option v-for="item in phoneList" :label="item.account" :value="item.account"></el-option>
+            </el-select>
+            <el-button @click="phoneAdd">添加新的手机号</el-button>
           </el-form-item>
           <el-form-item label="备注">
             <el-input v-model="form.comment"></el-input>
           </el-form-item>
-
           <el-form-item style="text-align: right">
             <el-button type="primary" @click="onSubmit">Save</el-button>
             <el-button>Cancel</el-button>
           </el-form-item>
         </el-form>
       </el-drawer>
+
+      <!--  抽屉 添加新的手机号码-->
+      <el-drawer :title="drawerTitle" :visible.sync="drawer2" :direction="direction2" :before-close="handleClose">
+        <PhoneAdd @func="onEmitIndex1"></PhoneAdd>
+      </el-drawer>
+
+      <!--  抽屉 添加新的手机号码-->
+      <el-drawer :title="drawerTitle" :visible.sync="drawer3" :direction="direction3" :before-close="handleClose">
+        <PhoneAdd @func="onEmitIndex2"></PhoneAdd>
+      </el-drawer>
+
     </div>
 
   </div>
 </template>
 
 <script>
+import copyToClipboard from "../utils/util";
+import EmailAdd from "./EmailAdd";
+import PhoneAdd from "./PhoneAdd";
+
 export default {
+  components:{
+    PhoneAdd,
+    EmailAdd
+  },
   computed: {
     type() {
       return this.flag ? "text" : "password";
     },
     elIcon() {
       return this.flag ? "el-icon-minus" : "el-icon-view";
-    },
-    bindTableColumns() {
-      return this.tableColumns.filter((column) => column.show);
     }
   },
-  created:function(){
-      this.pageSelect()
+  created:function() {
+    const _this = this
+    this.pageSelect()
+    this.updateEmailList()
+    this.$axios.get('/phoneList')
+      .then(function (response) {
+        const res = response.data
+        console.log(res)
+        _this.phoneList = response.data.data
+      }).catch(function (error) {
+      console.log(error);
+    });
   },
 
   data() {
     return {
       confirm_new_pwd:"1",
-      // 表格列
-      tableColumns:[
-        {
-          "prop":"id",
-          "label": "id",
-          "show": false
-        },{
-          "prop":"info",
-          "label": "简介",
-          "show": true
-        },{
-          "prop":"create_time",
-          "label": "创建时间",
-          "show": false
-        },{
-          "prop":"update_time",
-          "label": "更新时间",
-          "show": false
-        },{
-          "prop":"nickname",
-          "label": "昵称",
-          "show": false
-        },{
-          "prop":"account",
-          "label": "账号",
-          "show": true
-        },{
-          "prop":"password",
-          "label": "密码",
-          "show": false
-        },{
-          "prop":"website",
-          "label": "网址",
-          "show": true
-        },{
-          "prop":"bind_email",
-          "label": "绑定邮箱",
-          "show": false
-        },{
-          "prop":"bind_phone",
-          "label": "绑定手机号码",
-          "show": false
-        },{
-          "prop":"comment",
-          "label": "注释",
-          "show": true
-        }
-      ],
       tableData: [],
       currentPage:1,
       pageSize: 5,
       pageTotal:20,
       q:'',
+
       drawerTitle:"",
-      drawer: false,
-      direction: 'rtl',
+      drawer1: false,
+      direction1: 'rtl',
+
+      drawer2: false,
+      direction2: 'rtl',
+
+      drawer3: false,
+      direction3: 'rtl',
 
       form: {
         info: '',
@@ -196,17 +178,33 @@ export default {
       },
 
       pwd: "123456",
-      flag: false
+      flag: false,
+
+      emailList:[],
+      phoneList:[]
     }
   },
   methods:{
-    pageSelect(){
+    updateEmailList(){
+      console.log("UPdate")
+      const _this = this
+      this.$axios.get('/emailList')
+        .then(function (response) {
+          const res = response.data
+          console.log(res)
+          _this.emailList = response.data.data
+        }).catch(function (error) {
+        console.log(error);
+      });
+    },
+
+    pageSelect() {
       const _this = this
       this.$axios.get('/page', {
         params: {
-          pageNum:this.currentPage,
-          pageSize:this.pageSize,
-          q:this.q
+          pageNum: this.currentPage,
+          pageSize: this.pageSize,
+          q: this.q
         }
       }).then(function (response) {
         const res = response.data
@@ -222,26 +220,16 @@ export default {
 
     // copy password to clipboard
     handleCopyPasswd(row){
-      console.log(row)
-      let transfer = document.createElement('input');
-      document.body.appendChild(transfer);
-      transfer.value = row.password;  // 这里表示想要复制的内容
-      transfer.focus();
-      transfer.select();
-      if (document.execCommand('copy')) {
-        document.execCommand('copy');
-      }
-      transfer.blur();
-      const h = this.$createElement;
-      this.$notify({
-        title: '提示',
-        message: h('i', { style: 'color: teal'}, '复制成功')
-      });
-      console.log('复制成功');
-
-      document.body.removeChild(transfer);
+      const _this = this
+      copyToClipboard(row.password, function () {
+        const h = _this.$createElement;
+        _this.$notify({
+          title: '提示',
+          message: h('i', { style: 'color: teal'}, '复制成功')
+        });
+        console.log('复制成功');
+      })
     },
-
     handleClick(row){
       console.log(row)
       this.drawer = true
@@ -270,8 +258,8 @@ export default {
     },
     handleAdd(){
       this.form = {}
-      this.drawer = true
-      this.drawerTitle = "添加"
+      this.drawer1 = true
+      this.drawerTitle1 = "添加"
     },
     handleDelete(row){
       const _this = this
@@ -316,9 +304,49 @@ export default {
           title: '提示',
           message: h('i', { style: 'color: teal'}, '操作完成')
         });
-        _this.drawer = false
+        _this.drawer1 = false
         _this.pageSelect()
         console.log(response)
+      }).catch(function (error) {
+        console.log(error);
+      });
+    },
+    emailAdd(){
+      this.drawer2 = true
+    },
+
+    phoneAdd(){
+      this.drawer3 = true
+    },
+
+    onEmitIndex1(data){
+      console.log(data)
+      // 隐藏抽屉
+      this.drawer2 = false
+      const _this = this
+      this.$axios.get('/emailAdd', {
+        params: data
+      }).then(function (response) {
+        const res = response.data
+        console.log(res)
+        _this.updateEmailList()
+        _this.form["bind_email"] = data["account"]
+      }).catch(function (error) {
+        console.log(error);
+      });
+    },
+    onEmitIndex2(data){
+      console.log(data)
+      // 隐藏抽屉
+      this.drawer3 = false
+      const _this = this
+      this.$axios.get('/phoneAdd', {
+        params: data
+      }).then(function (response) {
+        const res = response.data
+        console.log(res)
+        _this.updateEmailList()
+        _this.form["bing_phone"] = data["account"]
       }).catch(function (error) {
         console.log(error);
       });

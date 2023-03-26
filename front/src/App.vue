@@ -3,11 +3,21 @@
     <el-header></el-header>
     <el-main>
       <el-row :gutter="20">
-        <el-col :span="2"><div class="grid-content bg-purple"></div></el-col>
-        <el-col :span="20"><div class="grid-content bg-purple">
-          <HelloWorld msg="Welcome to Your Vue.js App"/>
-        </div></el-col>
-        <el-col :span="2"><div class="grid-content bg-purple"></div></el-col>
+        <el-col :span="2">
+          <div class="grid-content bg-purple">
+        </div>
+        </el-col>
+        <el-col :span="2">
+          <div class="grid-content bg-purple">
+            <NavBar></NavBar>
+          </div>
+        </el-col>
+        <el-col :span="15">
+          <div class="grid-content bg-purple">
+            <router-view></router-view>
+          </div>
+        </el-col>
+        <el-col :span="1"><div class="grid-content bg-purple"></div></el-col>
       </el-row>
     </el-main>
     <el-footer></el-footer>
@@ -15,12 +25,14 @@
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import HelloWorld from '@/components/HelloWorld.vue'
+import NavBar from '@/components/NavBar.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
+    HelloWorld,
+    NavBar
   }
 }
 </script>
