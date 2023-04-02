@@ -115,8 +115,8 @@
 
 <script>
 import copyToClipboard from "../utils/util";
-import EmailAdd from "./EmailAdd";
-import PhoneAdd from "./PhoneAdd";
+import EmailAdd from "../components/EmailAdd";
+import PhoneAdd from "../components/PhoneAdd";
 
 export default {
   components:{
@@ -231,8 +231,7 @@ export default {
       })
     },
     handleClick(row){
-      console.log(row)
-      this.drawer = true
+      this.drawer1 = true
       this.form = row
       this.drawerTitle = "编辑"
 
@@ -259,6 +258,7 @@ export default {
     handleAdd(){
       this.form = {}
       this.drawer1 = true
+      console.log("ADD")
       this.drawerTitle1 = "添加"
     },
     handleDelete(row){

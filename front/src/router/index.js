@@ -8,17 +8,17 @@ const routes = [
     path: '/email',
     name: 'Email',
     meta: { title: '邮件管理' },
-    component: () => import('@/components/Email.vue')
+    component: () => import('@/views/Email.vue')
   },
   {
     path: '/phone',
     name: 'Phone',
     meta: { title: '手机号管理' },
-    component: () => import('@/components/Phone.vue')
+    component: () => import('@/views/Phone.vue')
   },
   {
     path: '*',
-    component: () => import('@/components/HelloWorld.vue')
+    component: () => import('@/views/HelloWorld.vue')
   }
 ]
 
