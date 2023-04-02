@@ -1,7 +1,7 @@
 {
   "name": "passwd-ui-front",
   "version": "1.0.0",
-  "description": "A Vue.js project",
+  "description": "passwd-ui-front",
   "author": "wangshuo",
   "private": true,
   "scripts": {
